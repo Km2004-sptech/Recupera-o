@@ -116,8 +116,6 @@
 
 </body>
 
-</html>
-
 <script>
 
 
@@ -295,7 +293,7 @@
         });
     }
     function carregarGeneros() {
-        fetch('/generos/listar')
+        fetch('/generos/inserir')
             .then(res => res.json())
             .then(generos => {
                 const select = document.getElementById('generoSelect');
@@ -315,3 +313,5 @@
     };
 
 </script>
+
+</html>
