@@ -61,69 +61,59 @@ function pesquisarDescricao(req, res) {
 }
 
 function publicar(req, res) {
-    var titulo = req.body.titulo;
-    var descricao = req.body.descricao;
-    var idUsuario = req.params.idUsuario;
+    var nomeLivro = req.body.nomeLivro;
+    var nomeAutor = req.body.nomeAutor;
+    var precoCompra = req.body.precoCompra;
+    var precoVenda = req.body.precoVenda;
+    var qtdEstoque = req.body.qtdEstoque;
+    var genero = req.body.genero;
 
-    if (titulo == undefined) {
-        res.status(400).send("O título está indefinido!");
-    } else if (descricao == undefined) {
-        res.status(400).send("A descrição está indefinido!");
-    } else if (idUsuario == undefined) {
-        res.status(403).send("O id do usuário está indefinido!");
+    if (!nomeLivro || !nomeAutor || !precoCompra || !precoVenda || !qtdEstoque || !genero) {
+        res.status(400).send("Preencha todos os campos corretamente!");
     } else {
-        avisoModel.publicar(titulo, descricao, idUsuario)
-            .then(
-                function (resultado) {
-                    res.json(resultado);
-                }
-            )
-            .catch(
-                function (erro) {
-                    console.log(erro);
-                    console.log("Houve um erro ao realizar o post: ", erro.sqlMessage);
-                    res.status(500).json(erro.sqlMessage);
-                }
-            );
+        avisoModel.publicar(nomeLivro, nomeAutor, precoCompra, precoVenda, qtdEstoque, genero)
+            .then(function (resultado) {
+                res.json(resultado);
+            }).catch(function (erro) {
+                console.log("Erro ao publicar:", erro.sqlMessage);
+                res.status(500).json(erro.sqlMessage);
+            });
     }
 }
 
+
 function editar(req, res) {
-    var novaDescricao = req.body.descricao;
-    var idAviso = req.params.idAviso;
+    var idLivro = req.params.idLivro;
+    var { nomeLivro, nomeAutor, precoCompra, precoVenda, qtdEstoque, genero } = req.body;
 
-    avisoModel.editar(novaDescricao, idAviso)
-        .then(
-            function (resultado) {
-                res.json(resultado);
-            }
-        )
-        .catch(
-            function (erro) {
-                console.log(erro);
-                console.log("Houve um erro ao realizar o post: ", erro.sqlMessage);
-                res.status(500).json(erro.sqlMessage);
-            }
-        );
-
+    avisoModel.editar(idLivro, nomeLivro, nomeAutor, precoCompra, precoVenda, qtdEstoque, genero)
+        .then(function (resultado) {
+            res.json(resultado);
+        }).catch(function (erro) {
+            console.log("Erro ao editar livro:", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        });
 }
 
 function deletar(req, res) {
-    var idAviso = req.params.idAviso;
+    var idLivro = req.params.idLivro;
 
-    avisoModel.deletar(idAviso)
-        .then(
-            function (resultado) {
-                res.json(resultado);
-            }
-        )
-        .catch(
-            function (erro) {
-                console.log(erro);
-                console.log("Houve um erro ao deletar o post: ", erro.sqlMessage);
-                res.status(500).json(erro.sqlMessage);
-            }
-        );
+    avisoModel.deletar(idLivro)
+        .then(function (resultado) {
+            res.json(resultado);
+        }).catch(function (erro) {
+            console.log("Erro ao deletar livro:", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        });
+}
+
+function inserirGenero(nome) {
+    const instrucaoSql = `
+        INSERT INTO genero (nome)
+        VALUES ('${nome}')
+        ON DUPLICATE KEY UPDATE nome = nome;
+    `;
+    return database.executar(instrucaoSql);
 }
 
 module.exports = {

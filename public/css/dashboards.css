@@ -84,6 +84,11 @@ body {
   align-items: stretch;
   border-bottom: 3px solid #e6005a;
   padding: 20px;
+   background-color: #222;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
 }
 
 .publicacao>*:not(:last-child) {
@@ -374,10 +379,12 @@ canvas {
   justify-content: center;
 }
 
-.hello h3 {
+.hello h2 {
   color: #e3b062;
   font-weight: 300;
-  font-size: 1.2rem;
+  font-size: 1.7rem;
+  text-align: center;
+
 }
 
 .hello h3 span {

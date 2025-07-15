@@ -19,7 +19,7 @@
         rel="stylesheet">
 </head>
 
-<body onload="validarSessao(), atualizarFeed()" style="background-color: #161618;">
+<body onload="atualizarFeed()" style="background-color: #161618;">
 
     <div class="janela">
 
@@ -29,27 +29,7 @@
             <h1>AquaTech</h1>
 
             <div class="hello">
-                <h3>Olá, <span id="b_usuario">usuário</span>!</h3>
-            </div>
-
-            <div class="btn-nav-white">
-                <a href="cards.html">
-                    <h3>Aquários</h3>
-                </a>
-            </div>
-
-            <div class="btn-nav-white">
-                <a href="./dashboard.html">
-                    <h3>Gráficos</h3>
-                </a>
-            </div>
-
-            <div class="btn-nav">
-                <h3>Mural de Avisos</h3>
-            </div>
-
-            <div class="btn-logout" onclick="limparSessao()">
-                <h3>Sair</h3>
+                <h2>Seja bem vindo ao mural da LivraTech</h2>
             </div>
 
         </div>
@@ -61,27 +41,67 @@
                 <div id="alerta">
                 </div>
                 <div class="container">
-                    <h1>Publicar um aviso</h1>
+                    <h1>Cadastrar um Livro:</h1>
                     <div class="div-form">
                         <form id="form_postagem" method="post" onsubmit="return publicar()">
                             <label>
-                                Título:
+                                Nome:
                                 <br>
-                                <input name="titulo" id="titulo" maxlength="100" type="text">
+                                <input name="nomeLivro" id="nomeLivro" maxlength="100" type="text"
+                                    placeholder="Nome do livro">
                             </label>
                             <br>
                             <br>
                             <label>
-                                Descrição (máximo de 250 caracteres):
+                                Autor:
                                 <br>
-                                <textarea name="descricao" id="textarea_descricao" maxlength="250" rows="5"></textarea>
+                                <input name="nomeAutor" id="nomeAutor" maxlength="100" type="text"
+                                    placeholder="Nome do autor">
                             </label>
                             <br>
                             <br>
-                            <button>Enviar</button>
+                            <label>
+                                Preço de compra:
+                                <br>
+                                <input name="precoCompra" id="precoCompra" type="number">
+                            </label>
+                            <br>
+                            <br>
+                            <label>
+                                <label>
+                                    Quantidade em estoque:
+                                    <br>
+                                    <input name="qtdEstoque" id="qtdEstoque" type="number">
+                                </label>
+                                <br>
+                                <br>
+                                <label>
+                                </label>
+                                Gênero:
+                                <br>
+                                <select id="generoSelect" name="genero">
+                                    <option value="">Selecione</option>
+                                    <option value="horror">Horror</option>
+                                    <option value="romance">Romance</option>
+                                    <option value="poesia">Poesia</option>
+                                    <option value="fantasia">Fantasia</option>
+                                </select>
+                                <br>
+                                <br>
+                                <label>
+                                </label>
+                                <label>
+                                    Ou digite um novo gênero:
+                                    <br>
+                                    <input type="text" id="generoNovo" name="generoNovo" placeholder="Novo gênero">
+                                </label>
+                                <br>
+                                <br>
+                                <label>
+                                    <button>Enviar</button>
                         </form>
                     </div>
-                    <h1>Mural de Avisos</h1>
+                    <h1>Livros cadastrados</h1>
                     <div class="div-results">
                         <div id="feed_container" class="feed-container">
                         </div>
@@ -99,50 +119,82 @@
 </html>
 
 <script>
-    
-    b_usuario.innerHTML = sessionStorage.NOME_USUARIO;
+
 
     function limparFormulario() {
         document.getElementById("form_postagem").reset();
     }
 
     function publicar() {
-        var idUsuario = sessionStorage.ID_USUARIO;
+        const nomeLivro = form_postagem.nomeLivro.value.trim();
+        const nomeAutor = form_postagem.nomeAutor.value.trim();
+        const precoCompra = parseFloat(form_postagem.precoCompra.value);
+        const qtdEstoque = parseInt(form_postagem.qtdEstoque.value);
 
-        var corpo = {
-            titulo: form_postagem.titulo.value,
-            descricao: form_postagem.descricao.value
+        const generoSelect = form_postagem.generoSelect.value;
+        const generoNovo = d/form_postagem.generoNovo.value.trim();
+
+        const generoFinal = generoNovo !== "" ? generoNovo : generoSelect;
+
+        if (!nomeLivro || !nomeAutor || isNaN(precoCompra) || isNaN(qtdEstoque) || !generoFinal) {
+            alert("Preencha todos os campos corretamente.");
+            return false;
         }
 
-        fetch(`/avisos/publicar/${idUsuario}`, {
-            method: "post",
+        // Validação do autor
+        const vetorCaracteres = nomeAutor.split('');
+        const caracteresInvalidos = '0123456789!@#$%^&*()_+={}[];:"<>,.?/~`\\|';
+        for (let i = 0; i < vetorCaracteres.length; i++) {
+            if (caracteresInvalidos.includes(vetorCaracteres[i])) {
+                alert("O nome do autor não pode conter números ou caracteres especiais.");
+                return false;
+            }
+        }
+
+        // Cálculo do preço de venda
+        let precoVenda = precoCompra;
+        if (precoCompra >= 100 && (generoFinal === "horror" || generoFinal === "romance")) {
+            precoVenda *= 1.225;
+        } else if (precoCompra <= 50 && (generoFinal === "poesia" || generoFinal === "horror")) {
+            precoVenda *= 1.25;
+        } else if (precoCompra > 50 && precoCompra < 100 && generoFinal === "fantasia") {
+            precoVenda *= 1.275;
+        }
+
+        precoVenda = precoVenda.toFixed(2);
+
+        // Enviar para API
+        const corpo = {
+            nomeLivro,
+            nomeAutor,
+            precoCompra,
+            precoVenda,
+            qtdEstoque,
+            genero: generoFinal
+        };
+
+        fetch(`/avisos/publicar/`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(corpo)
-        }).then(function (resposta) {
-
-            console.log("resposta: ", resposta);
-
+        }).then(resposta => {
             if (resposta.ok) {
-                window.alert("Post realizado com sucesso pelo usuario de ID: " + idUsuario + "!");
-                window.location = "/dashboard/mural.html";
+                alert("Livro cadastrado com sucesso!");
                 limparFormulario();
-                finalizarAguardar();
+                window.location = "/dashboard/mural.html";
             } else if (resposta.status == 404) {
-                window.alert("Deu 404!");
+                alert("Erro 404 - Recurso não encontrado.");
             } else {
-                throw ("Houve um erro ao tentar realizar a postagem! Código da resposta: " + resposta.status);
+                throw "Erro ao tentar cadastrar. Código: " + resposta.status;
             }
-        }).catch(function (resposta) {
-            console.log(`#ERRO: ${resposta}`);
-            finalizarAguardar();
+        }).catch(erro => {
+            console.error("#ERRO: ", erro);
         });
 
         return false;
-
     }
-
     function editar(idAviso) {
         sessionStorage.ID_POSTAGEM_EDITANDO = idAviso;
         console.log("cliquei em editar - " + idAviso);
@@ -192,59 +244,74 @@
                     for (let i = 0; i < resposta.length; i++) {
                         var publicacao = resposta[i];
 
-                        // criando e manipulando elementos do HTML via JavaScript
                         var divPublicacao = document.createElement("div");
                         var spanID = document.createElement("span");
-                        var spanTitulo = document.createElement("span");
-                        var spanNome = document.createElement("span");
-                        var divDescricao = document.createElement("div");
+                        var spanNomeLivro = document.createElement("span");
+                        var spanAutor = document.createElement("span");
+                        var spanPreco = document.createElement("span");
+                        var spanEstoque = document.createElement("span");
+                        var spanGenero = document.createElement("span");
                         var divButtons = document.createElement("div");
                         var btnEditar = document.createElement("button");
                         var btnDeletar = document.createElement("button");
 
-
                         spanID.innerHTML = "ID: <b>" + publicacao.idAviso + "</b>";
-                        spanTitulo.innerHTML = "Título: <b>" + publicacao.titulo + "</b>";
-                        spanNome.innerHTML = "Autor: <b>" + publicacao.nome + "</b>";
-                        divDescricao.innerHTML = "Descrição: <b>" + publicacao.descricao + "</b>";
+                        spanNomeLivro.innerHTML = "Livro: <b>" + publicacao.nomeLivro + "</b>";
+                        spanAutor.innerHTML = "Autor: <b>" + publicacao.nomeAutor + "</b>";
+                        spanPreco.innerHTML = "Preço: <b>R$ " + publicacao.precoCompra + "</b>";
+                        spanEstoque.innerHTML = "Estoque: <b>" + publicacao.qtdEstoque + "</b>";
+                        spanGenero.innerHTML = "Gênero: <b>" + publicacao.genero + "</b>";
+
                         btnEditar.innerHTML = "Editar";
                         btnDeletar.innerHTML = "Deletar";
 
                         divPublicacao.className = "publicacao";
-                        spanTitulo.id = "inputNumero" + publicacao.idAviso;
-                        spanNome.className = "publicacao-nome";
-                        spanTitulo.className = "publicacao-titulo";
-                        divDescricao.className = "publicacao-descricao";
+                        divButtons.className = "div-buttons";
 
-                        divButtons.className = "div-buttons"
-
-                        btnEditar.className = "publicacao-btn-editar"
-                        btnEditar.id = "btnEditar" + publicacao.idAviso;
+                        btnEditar.className = "publicacao-btn-editar";
                         btnEditar.setAttribute("onclick", `editar(${publicacao.idAviso})`);
 
-                        btnDeletar.className = "publicacao-btn-editar"
-                        btnDeletar.id = "btnDeletar" + publicacao.idAviso;
+                        btnDeletar.className = "publicacao-btn-editar";
                         btnDeletar.setAttribute("onclick", `deletar(${publicacao.idAviso})`);
 
                         divPublicacao.appendChild(spanID);
-                        divPublicacao.appendChild(spanNome);
-                        divPublicacao.appendChild(spanTitulo);
-                        divPublicacao.appendChild(divDescricao);
-                        divPublicacao.appendChild(divButtons);
+                        divPublicacao.appendChild(spanNomeLivro);
+                        divPublicacao.appendChild(spanAutor);
+                        divPublicacao.appendChild(spanPreco);
+                        divPublicacao.appendChild(spanEstoque);
+                        divPublicacao.appendChild(spanGenero);
                         divButtons.appendChild(btnEditar);
                         divButtons.appendChild(btnDeletar);
+                        divPublicacao.appendChild(divButtons);
+
                         feed.appendChild(divPublicacao);
                     }
-
-                    finalizarAguardar();
                 });
             } else {
                 throw ('Houve um erro na API!');
             }
         }).catch(function (resposta) {
             console.error(resposta);
-            finalizarAguardar();
         });
     }
+    function carregarGeneros() {
+        fetch('/generos/listar')
+            .then(res => res.json())
+            .then(generos => {
+                const select = document.getElementById('generoSelect');
+                generos.forEach(g => {
+                    const option = document.createElement('option');
+                    option.value = g.idGenero;
+                    option.textContent = g.nomeGenero;
+                    select.appendChild(option);
+                });
+            }).catch(err => console.error("Erro ao carregar gêneros:", err));
+    }
+
+
+    window.onload = function () {
+        atualizarFeed();
+        carregarGeneros();
+    };
 
 </script>

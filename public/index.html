@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AquaTech | Página Inicial</title>
+    <title>LivraTech | Acervo</title>
 
     <script src="./js/sessao.js"></script>
 
@@ -28,6 +28,9 @@
           </li>
           <li>|</li>
           <li>
+     <a href="./dashboard/mural.html">Mural</a>
+  </li>
+          <li>
             <a href="login.html">Login</a>
           </li>
           <li>
@@ -39,7 +42,7 @@
   
     <div class="banner">
       <div class="container">
-        <p>Preservando <span>hoje</span> para existirem <span>amanhã</span>.</p>
+        <p>Leia o<span>README</span></p>
       </div>
     </div>
   
@@ -71,6 +74,14 @@
       </div>
     </div>
   
+    <div class="acervo-livros">
+  <div class="container">
+    <h2>Nosso Acervo de Livros</h2>
+    <div id="livros-container">
+    </div>
+  </div>
+</div>
+
     <div class="footer">
       <div class="container">
         <h4>Feito com amor por aluno &hearts; SPTech &copy; 2023</h4>
@@ -78,5 +89,40 @@
       </div>
     </div>
   </body>
+  <script>
+  window.onload = function () {
+    fetch("/avisos/listar")
+      .then(res => res.json())
+      .then(lista => {
+        const container = document.getElementById("livros-container");
+        if (!lista.length) {
+          container.innerHTML = "<p>Nenhum livro encontrado.</p>";
+          return;
+        }
+
+        lista.forEach(livro => {
+          const card = document.createElement("div");
+          card.className = "card-livro";
+
+          card.innerHTML = `
+            <img src="./assets/imgs/livro.png" alt="Livro">
+            <div class="info">
+              <h3>${livro.nomeLivro}</h3>
+              <p><strong>Autor:</strong> ${livro.nomeAutor}</p>
+              <p><strong>Preço de Compra:</strong> R$ ${livro.precoCompra}</p>
+              <p><strong>Preço de Venda:</strong> R$ ${parseFloat(livro.precoVenda).toFixed(2)}</p>
+              <p><strong>Estoque:</strong> ${livro.qtdEstoque}</p>
+              <p><strong>Gênero:</strong> ${livro.genero}</p>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Erro ao carregar livros:", err);
+      });
+  };
+</script>
 
 </html>
