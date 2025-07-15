@@ -374,12 +374,10 @@ canvas {
   justify-content: center;
 }
 
-.hello h2 {
+.hello h3 {
   color: #e3b062;
   font-weight: 300;
-  font-size: 1.7rem;
-  text-align: center;
-
+  font-size: 1.2rem;
 }
 
 .hello h3 span {

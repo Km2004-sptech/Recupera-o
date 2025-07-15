@@ -29,7 +29,27 @@
             <h1>AquaTech</h1>
 
             <div class="hello">
-                <h2>Seja bem vindo ao mural da LivraTech</h2>
+                <h3>Olá, <span id="b_usuario">usuário</span>!</h3>
+            </div>
+
+            <div class="btn-nav-white">
+                <a href="cards.html">
+                    <h3>Aquários</h3>
+                </a>
+            </div>
+
+            <div class="btn-nav-white">
+                <a href="./dashboard.html">
+                    <h3>Gráficos</h3>
+                </a>
+            </div>
+
+            <div class="btn-nav">
+                <h3>Mural de Avisos</h3>
+            </div>
+
+            <div class="btn-logout" onclick="limparSessao()">
+                <h3>Sair</h3>
             </div>
 
         </div>
@@ -41,54 +61,27 @@
                 <div id="alerta">
                 </div>
                 <div class="container">
-                    <h1>Cadastrar um Livro:</h1>
+                    <h1>Publicar um aviso</h1>
                     <div class="div-form">
                         <form id="form_postagem" method="post" onsubmit="return publicar()">
                             <label>
-                                Nome:
+                                Título:
                                 <br>
-                                <input name="nomeLivro" id="nomeLivro" maxlength="100" type="text" placeholder="Nome do livro">
+                                <input name="titulo" id="titulo" maxlength="100" type="text">
                             </label>
                             <br>
                             <br>
                             <label>
-                                Autor:
+                                Descrição (máximo de 250 caracteres):
                                 <br>
-                                <input name="nomeAutor" id="nomeAutor" maxlength="100" type="text" placeholder="Nome do autor">
+                                <textarea name="descricao" id="textarea_descricao" maxlength="250" rows="5"></textarea>
                             </label>
                             <br>
                             <br>
-                            <label>
-                                Preço de compra:
-                                <br>
-                                <input name="precoCompra" id="precoCompra"type="number">
-                            </label>
-                            <br>
-                            <br>
-                            <label>
-                                <label>
-                                            Quantidade em estoque:
-                                            <br>
-                                            <input name="qtdEstoque" id="qtdEstoque" type="number">
-                                        </label>
-                                        <br>
-                                        <br>
-                                        <label>   
-                                    </label>
-                                    Gênero:
-                                    <br>
-                                    <input name="genero" id="genero" maxlength="100" type="text">
-                                <br>
-                                <br>
-                                <label>   
-                            </label>
-                                    <br>
-                                    <br>
-                                    <label>
                             <button>Enviar</button>
                         </form>
                     </div>
-                    <h1>Livros cadastrados</h1>
+                    <h1>Mural de Avisos</h1>
                     <div class="div-results">
                         <div id="feed_container" class="feed-container">
                         </div>
@@ -117,22 +110,9 @@
         var idUsuario = sessionStorage.ID_USUARIO;
 
         var corpo = {
-            nomeLivro: form_postagem.nomeLivro.value,
-            nomeAutor: form_postagem.nomeAutor.value,
-            precoCompra: form_postagem.precoCompra.value,
-            qtdEstoque: form_postagem.qtdEstoque.value,
-            genero: form_postagem.genero.value,
+            titulo: form_postagem.titulo.value,
+            descricao: form_postagem.descricao.value
         }
-
-
-//      for(let i = 0; i < nomeAutor; i++){
-//    if(nomeAutor ){
-
-//    }
-
-//      }
-     
-
 
         fetch(`/avisos/publicar/${idUsuario}`, {
             method: "post",
